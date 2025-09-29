@@ -3,3 +3,87 @@ title: "p8105_hw2_ym3077"
 output: github_document
 ---
 
+## Problem 1
+
+Load library
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+Load datasets
+```{r}
+pols_df = read_csv("./data/pols-month.csv")
+snp_df = read_csv("./data/snp.csv")
+unemp_df = read_csv("./data/unemployment.csv")
+```
+
+Clean pols_df
+```{r}
+pols_df_clean = pols_df |>
+  janitor::clean_names() |>
+  separate(mon, into = c("year", "month", "day"), sep = "-", convert = TRUE) |>
+  mutate(
+    month = month.name[month],
+    president = case_when(
+      prez_gop == 1 ~ "gop",
+      prez_dem == 1 ~ "dem"
+    )
+  ) |>
+  select(-day, -prez_gop, -prez_dem)
+```
+
+Clean snp_df
+```{r}
+snp_df_clean = snp_df |>
+  mutate(date = mdy(date)) |>                        
+  mutate(
+    year = year(date),                               
+    month = month(date, label = TRUE, abbr = FALSE), 
+    day = day(date)                                   
+  ) |>
+  select(year, month, day, close) |>
+  arrange(year, month)
+
+```
+
+Clean unemp_df
+```{r}
+unemp_df_clean = unemp_df |>
+  janitor::clean_names() |> 
+  pivot_longer(
+    jan:dec,                
+    names_to = "month",
+    values_to = "unemployment"
+  ) |>
+  mutate(
+    month = month.name[match(month, tolower(month.abb))],
+    year = year
+  ) |>
+  select(year, month, unemployment) |>
+  arrange(year, match(month, month.name))
+```
+
+Merge 3 datasets
+```{r}
+merged_df = pols_df_clean |>
+  left_join(snp_df_clean, by = c("year", "month")) |>
+  left_join(unemp_df_clean, by = c("year", "month"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
