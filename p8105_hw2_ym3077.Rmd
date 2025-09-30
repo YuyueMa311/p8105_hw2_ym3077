@@ -71,8 +71,17 @@ merged_df = pols_df_clean |>
   left_join(unemp_df_clean, by = c("year", "month"))
 ```
 
+Summary:
+
+Three datasets: `pols_df`, `snp_df`, and `unemp_df`, each containing monthly-level U.S. data.   
+- The `pols_df` dataset provides information on political composition, including 9 variables such as `year`, `month`, `gov_gop`, `gov_dem`, `sen_gop`, `sen_dem`, `rep_gop`, and `president` indicating the number of officeholders from each party.   
+- The `snp_df` dataset includes stock market data with 2 variables： `date` and `close`, where close records the closing values of the S&P stock index on the associated date.   
+- The `unemp_df` dataset reports national unemployment rates, originally with columns for each month (Jan to Dec) and a Year column, 68 observations of 13 variables in total:, later pivoted into long format with variables `year`,` month`, and `unemployment`.  
+
+After cleaning and transforming the individual datasets, they were merged using common keys year and month, resulting in a single dataset `merged_df` with 822 rows and 12 columns, spanning the years 1947 to 2015. The merged dataset includes key variables such as `year`, `month`, `president`, `close` (S&P index), and `unemployment`, allowing for integrated analysis of political control, economic conditions, and market trends across nearly seven decades.
 
 
+## Problem 2
 
 
 
