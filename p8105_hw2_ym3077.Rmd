@@ -9,6 +9,7 @@ Load library
 ```{r}
 library(tidyverse)
 library(lubridate)
+library(readxl)
 ```
 
 Load datasets
@@ -83,6 +84,51 @@ After cleaning and transforming the individual datasets, they were merged using 
 
 ## Problem 2
 
+
+Read and clean Mr. Trash Wheel data
+```{r}
+mr_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+                       sheet = "Mr. Trash Wheel", skip = 1) |> 
+  janitor::clean_names() |> 
+  drop_na(dumpster) |> 
+  mutate(
+    sports_balls = as.integer(round(sports_balls, 0)),
+    trash_wheel = "Mr. Trash Wheel" 
+  ) |>
+  select(dumpster, month, year, date, weight_tons, volume_cubic_yards,
+         plastic_bottles, polystyrene, cigarette_butts, glass_bottles, plastic_bags,
+         wrappers, sports_balls, homes_powered, trash_wheel)
+```
+
+```{r}
+
+```
+
+# Read and clean Professor Trash Wheel
+prof_trash <- read_excel("Trash-Wheel-Collection-Totals-2020-2023.xlsx",
+                         sheet = "Professor Trash Wheel",
+                         skip = 1) |> 
+  janitor::clean_names() |> 
+  filter(!is.na(dumpster)) |> 
+  mutate(
+    sports_balls = as.integer(round(sports_balls, 0)),
+    name = "Professor Trash Wheel"
+  )
+
+# Read and clean Gwynnda
+gwynnda <- read_excel("Trash-Wheel-Collection-Totals-2020-2023.xlsx",
+                      sheet = "Gwynnda the Good Wheel of the West",
+                      skip = 1) |> 
+  janitor::clean_names() |> 
+  filter(!is.na(dumpster)) |> 
+  mutate(
+    sports_balls = as.integer(round(sports_balls, 0)),
+    name = "Gwynnda"
+  )
+
+# Combine all Trash Wheel datasets
+trash_wheel_data <- bind_rows(mr_trash, prof_trash, gwynnda)
+```
 
 
 
