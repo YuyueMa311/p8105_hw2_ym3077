@@ -140,8 +140,43 @@ In June 2022, Gwynnda collected a total of `r sum(trash_wheel_all$cigarette_butt
 
 ## Problem 3
 
+Load datasets
+```{r}
+zillow <- read_csv("data/Zip_zori_uc_sfrcondomfr_sm_month_NYC.csv") |> 
+ janitor::clean_names()
 
+zipcode <- read_csv("data/Zip Codes.csv") |> 
+ janitor::clean_names()
+```
 
+Clean datasets
+```{r}
+names(zillow)
+
+zillow_long <- zillow |> 
+  pivot_longer(
+    cols = starts_with("x"),
+    names_to = "date",
+    values_to = "zori"
+  ) |>
+  mutate(
+    date = str_remove(date, "^x"),    
+    date = ymd(date),               
+    year = year(date),
+    month = month(date, label = TRUE, abbr = FALSE),
+    zip = as.character(region_name)
+  )
+
+zipcode_clean <- zipcode |> 
+  select(zip_code, borough = county, neighborhood) |> 
+  rename(zip = zip_code) |> 
+  mutate(zip = as.character(zip))
+```
+
+Merge datasets
+```{r}
+zillow_merged <- left_join(zillow_long, zipcode_clean, by = "zip", relationship = "many-to-many")
+```
 
 
 
