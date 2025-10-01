@@ -70,6 +70,8 @@ Merge 3 datasets
 merged_df = pols_df_clean |>
   left_join(snp_df_clean, by = c("year", "month")) |>
   left_join(unemp_df_clean, by = c("year", "month"))
+
+merged_df
 ```
 
 Summary:
@@ -93,6 +95,7 @@ mr_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
   drop_na(dumpster) |> 
   mutate(
     sports_balls = as.integer(round(sports_balls, 0)),
+    year = as.integer(year),
     trash_wheel = "Mr. Trash Wheel" 
   ) |>
   select(dumpster, month, year, date, weight_tons, volume_cubic_yards,
@@ -100,39 +103,42 @@ mr_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
          wrappers, sports_balls, homes_powered, trash_wheel)
 ```
 
+Read and clean Professor Trash Wheel data
 ```{r}
-
+prof_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+                         sheet = "Professor Trash Wheel", skip = 1) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) |>
+  mutate(
+    year = as.integer(year),
+    trash_wheel = "Professor Trash Wheel")
 ```
 
-# Read and clean Professor Trash Wheel
-prof_trash <- read_excel("Trash-Wheel-Collection-Totals-2020-2023.xlsx",
-                         sheet = "Professor Trash Wheel",
-                         skip = 1) |> 
-  janitor::clean_names() |> 
-  filter(!is.na(dumpster)) |> 
+Read and clean Gwynnda data
+```{r}
+gwynnda_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+                            sheet = "Gwynnda Trash Wheel", skip = 1) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) |>
   mutate(
-    sports_balls = as.integer(round(sports_balls, 0)),
-    name = "Professor Trash Wheel"
-  )
-
-# Read and clean Gwynnda
-gwynnda <- read_excel("Trash-Wheel-Collection-Totals-2020-2023.xlsx",
-                      sheet = "Gwynnda the Good Wheel of the West",
-                      skip = 1) |> 
-  janitor::clean_names() |> 
-  filter(!is.na(dumpster)) |> 
-  mutate(
-    sports_balls = as.integer(round(sports_balls, 0)),
-    name = "Gwynnda"
-  )
-
-# Combine all Trash Wheel datasets
-trash_wheel_data <- bind_rows(mr_trash, prof_trash, gwynnda)
+    year = as.integer(year),
+    trash_wheel = "Gwynnda Trash Wheel")
 ```
 
+Combine all Trash Wheel datasets
+```{r}
+trash_wheel_all <- bind_rows(mr_trash, prof_trash, gwynnda_trash)
+
+trash_wheel_all
+```
+
+The combined dataset contains `r nrow(trash_wheel_all)` observations of trash collection records from 3 Trash Wheels in Baltimore: Mr. Trash Wheel, Professor Trash Wheel, and Gwynnda Trash Wheel. Each observation corresponds to a dumpster load of trash, and includes key variables such as the date of collection, weight in tons of trash collected (`weight_tons`), volume in cubic yards (`volume_cubic_yards`), and itemized counts of different trash types like plastic bottles, polystyrene, cigarette butts, glass bottles, plastic bags, etc. A notable variable is `homes_powered`, estimating the number of homes that could be powered using the energy from incinerated trash.  
+
+For the available data, Professor Trash Wheel collected a total of `r sum(trash_wheel_all$weight_tons[trash_wheel_all$trash_wheel == "Professor Trash Wheel"], na.rm = TRUE)` tons of trash. 
+In June 2022, Gwynnda collected a total of `r sum(trash_wheel_all$cigarette_butts[trash_wheel_all$trash_wheel == "Gwynnda Trash Wheel" & trash_wheel_all$year == 2022 & trash_wheel_all$month == "June"], na.rm = TRUE)` cigarette butts.
 
 
-
+## Problem 3
 
 
 
