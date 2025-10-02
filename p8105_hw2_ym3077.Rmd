@@ -181,8 +181,9 @@ zillow_merged <- left_join(zillow_long, zipcode_clean, by = "zip", relationship 
 Organize merged dataset
 ```{r}
 zillow_merged <- zillow_merged |>
-  select(zip, region_id, region_name, region_type, state, city, county_name, borough, 
-         neighborhood, year, month, date, zori, everything(), -state_name) |>
+  select(-state_name) |>
+  select(zip, region_id, region_name, region_type, state, city, county_name, borough,
+         neighborhood, year, month, date, zori, everything()) |>
   arrange(zip, year, match(month, month.name))
 zillow_merged
 
@@ -190,8 +191,30 @@ n_distinct(zillow_merged$zip)
 n_distinct(zillow_merged$neighborhood)
 ```
 
-The resulting tidy dataset `zillow_merged` contains 17,516 observations and 15 variables, where each row represents the rental price index (`zori`) for a specific ZIP code and month. After merging Zillow’s housing data with zipcode geographic information, the tidy dataset includes identifiers for region, state, city, county (`county_name`), borough, and neighborhood. There are 149 unique ZIP codes and 43 unique neighborhoods represented in the data. The `zillow_merged` preserved distinct classification schemes: `county_name` from the original Zillow data and `borough`/`neighborhood` from the ZIP code dataset; allowing for future flexible geographic analysis across multiple administrative levels.
+The resulting tidy dataset `zillow_merged` contains 17,516 observations and 15 variables, where each row represents the rental price index (`zori`) for a specific ZIP code and month. After merging Zillow’s housing data with zipcode geographic information, the tidy dataset includes identifiers for region, state, city, county (`county_name`), borough, and neighborhood. There are 149 unique ZIP codes and 43 unique neighborhoods represented in the data. The `zillow_merged` preserved distinct classification methods: `county_name` from the original Zillow data and `borough`/`neighborhood` from the ZIP code dataset; allowing for future flexible geographic analysis across multiple administrative levels.
 
+```{r}
+zip_missing <- anti_join(zipcode_clean, zillow_long, by = c("zip"))
+zip_missing
+```
+`zip_missing` dataset consist of 171 ZIP codes that appear in the ZIP code dataset but not in the Zillow Rental Price dataset. For example, ZIP codes such as 10475, 11245, or 10082 appear in `zipcode_clean` but not in `zillow_long`, it suggests that Zillow did not report or collect rental price information for these areas. Possible reasons are areas with very few rental listings, Zillow might suppress data to protect individual privacy or due to insufficient sample size; or some ZIP codes may be primarily industrial/commercial, with have low residential rental activity, making difficult for Zillow to estimate or report rental prices.
+
+Covid-19 Drop Table
+```{r}
+covid19_drops <- zillow_merged |>
+  filter(date %in% as.Date(c("2020-01-31", "2021-01-31"))) |>
+  select(zip, borough, neighborhood, date, zori) |>
+  pivot_wider(
+    names_from = date,
+    values_from = zori,
+    names_prefix = "rent_") |>
+  mutate(price_change = `rent_2021-01-31` - `rent_2020-01-31`) |>
+  arrange(price_change) |>
+  slice(1:10)
+
+covid19_drops
+```
+The table shows the 10 ZIP codes in New York City that experienced the largest drops in rental prices between January 2020 and January 2021, during the COVID-19 pandemic.
 
 
 
