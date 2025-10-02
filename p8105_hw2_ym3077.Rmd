@@ -89,7 +89,7 @@ After cleaning and transforming the individual datasets, they were merged using 
 
 Read and clean Mr. Trash Wheel data
 ```{r}
-mr_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+mr_trash <- read_excel("data/202509 Trash Wheel Collection Data.xlsx",
                        sheet = "Mr. Trash Wheel", skip = 1) |> 
   janitor::clean_names() |> 
   drop_na(dumpster) |> 
@@ -105,7 +105,7 @@ mr_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
 
 Read and clean Professor Trash Wheel data
 ```{r}
-prof_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
+prof_trash <- read_excel("data/202509 Trash Wheel Collection Data.xlsx",
                          sheet = "Professor Trash Wheel", skip = 1) |>
   janitor::clean_names() |>
   drop_na(dumpster) |>
@@ -116,8 +116,8 @@ prof_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
 
 Read and clean Gwynnda data
 ```{r}
-gwynnda_trash <- read_excel("data/202409 Trash Wheel Collection Data.xlsx",
-                            sheet = "Gwynnda Trash Wheel", skip = 1) |>
+gwynnda_trash <- read_excel("data/202509 Trash Wheel Collection Data.xlsx",
+                            sheet = "Gwynns Falls Trash Wheel", skip = 1) |>
   janitor::clean_names() |>
   drop_na(dumpster) |>
   mutate(
